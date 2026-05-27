@@ -1,6 +1,25 @@
 import pandas as pd
 import re
 
+def fix_outliers(df):
+    """Fix outlier values in the dataset"""
+    df_fixed = df.copy()
+    
+    # Fix 1: Display size (35 inches -> 15.6)
+    if 'display(in inch)' in df_fixed.columns:
+        df_fixed.loc[df_fixed['display(in inch)'] == 35.0, 'display(in inch)'] = 15.6
+    
+    # Fix 2: Storage anomalies (4GB and 5GB -> 512GB)
+    if 'storage_gb' in df_fixed.columns:
+        df_fixed.loc[df_fixed['storage_gb'] == 4, 'storage_gb'] = 512
+        df_fixed.loc[df_fixed['storage_gb'] == 5, 'storage_gb'] = 512
+    
+    # Fix 3: Fill missing processor_gen with -1
+    if 'processor_gen' in df_fixed.columns:
+        df_fixed['processor_gen'] = df_fixed['processor_gen'].fillna(-1)
+    
+    return df_fixed
+
 def extract_ram_gb(ram_str):
     """Extract RAM size in GB from string."""
     if pd.isna(ram_str):
@@ -234,6 +253,8 @@ def process_full_dataset(df):
 
     df_final = df_processed[final_columns].copy()
     df_final = df_final.rename(columns={'os_simplified': 'os'})
+
+    df_final = fix_outliers(df_final)
 
     print(f"\nFinal size: {df_final.shape}")
     print(f"Missing values: {df_final.isna().sum().sum()}")
