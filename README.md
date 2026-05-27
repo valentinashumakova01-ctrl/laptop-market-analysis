@@ -13,7 +13,7 @@ The analysis includes:
 - outlier detection
 - visualization
 - correlation analysis
-- - **Interactive Streamlit dashboard**
+- **Interactive Streamlit dashboard**
 
 ## Dataset
 
