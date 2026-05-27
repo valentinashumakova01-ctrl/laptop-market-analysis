@@ -31,11 +31,14 @@ st.markdown("### Interactive Data Exploration Tool")
 @st.cache_data
 def load_data():
     """Load and cache the laptop dataset"""
-    import kagglehub
-    path = kagglehub.dataset_download("rajugc/laptop-selection-dataset")
-    csv_files = [f for f in os.listdir(path) if f.endswith('.csv')]
-    file_path = os.path.join(path, csv_files[0])
-    df_raw = pd.read_csv(file_path)
+    data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'laptops.csv')
+    
+    if os.path.exists(data_path):
+        df_raw = pd.read_csv(data_path)
+        st.info("Data loaded from local cache")
+    else:
+        st.error("Data file not found")
+        st.stop()
     
     # Use preprocessing
     df = process_full_dataset(df_raw)
