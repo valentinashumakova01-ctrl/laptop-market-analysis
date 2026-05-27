@@ -126,3 +126,5 @@ streamlit run dashboard/app.py
 - Technical Specs - RAM, storage, processor, OS distribution
 - Brand Comparison - Performance metrics comparison
 - Smart Recommendations - Based on market analysis
+
+![Interactive Dashboard](images/dashboard.png)
