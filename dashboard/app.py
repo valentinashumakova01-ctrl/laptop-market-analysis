@@ -41,8 +41,7 @@ def load_data():
         st.stop()
     
     # Use preprocessing
-    df_prepr = process_full_dataset(df_raw)
-    df = fix_outliers(df_prepr)
+    df = process_full_dataset(df_raw)
 
     return df
 
