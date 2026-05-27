@@ -41,8 +41,9 @@ def load_data():
         st.stop()
     
     # Use preprocessing
-    df = process_full_dataset(df_raw)
-    
+    df_prepr = process_full_dataset(df_raw)
+    df = fix_outliers(df_prepr)
+
     return df
 
 with st.spinner("Loading data..."):
@@ -176,36 +177,31 @@ with tab2:
                      color='processor_brand')
         st.plotly_chart(fig, use_container_width=True)
 
-    col1, col2 = st.columns(2)
 
-    with col1:
-        st.subheader("Rating by RAM")
-        rating_by_ram = filtered_df.groupby('ram_gb')['rating'].mean().reset_index()
-        fig = px.line(rating_by_ram, x='ram_gb', y='rating',
+    st.subheader("Rating by RAM")
+    rating_by_ram = filtered_df.groupby('ram_gb')['rating'].mean().reset_index()
+    fig = px.line(rating_by_ram, x='ram_gb', y='rating',
                       markers=True, title="Rating vs RAM Size")
-        st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
         
-        st.subheader("Rating Distribution")
-        fig = px.histogram(filtered_df, x='rating', nbins=20,
+    st.subheader("Rating Distribution")
+    fig = px.histogram(filtered_df, x='rating', nbins=20,
                            title="Rating Distribution",
                            labels={'rating': 'Rating', 'count': 'Number of Laptops'})
-        st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
-    with col2:
-        st.subheader("Average Rating by Display Size")
-        display_rating = filtered_df.groupby('display_size')['rating'].agg(['mean', 'count']).reset_index()
-        display_rating = display_rating.sort_values('display_size')
-    
-        
-        fig = px.bar(display_rating, x='display_size', y='mean',
+    st.subheader("Average Rating by Display Size")
+    display_rating = filtered_df.groupby('display_size')['rating'].agg(['mean', 'count']).reset_index()
+    display_rating = display_rating.sort_values('display_size')
+    fig = px.bar(display_rating, x='display_size', y='mean',
                      text='count',
                      title="Average Rating by Display Size",
                      labels={'display_size': 'Display Size (inches)', 'mean': 'Average Rating'},
                      color='mean',
                      color_continuous_scale='RdYlGn')
-        fig.update_traces(textposition='outside')
-        fig.add_hline(y=4.5, line_dash="dash", line_color="red")
-        st.plotly_chart(fig, use_container_width=True)
+    fig.update_traces(textposition='outside')
+    fig.add_hline(y=4.5, line_dash="dash", line_color="red")
+    st.plotly_chart(fig, use_container_width=True)
 
 # Tab 3: Technical Specs
 with tab3:
@@ -264,8 +260,7 @@ with tab3:
                            title="Display Size Distribution",
                            labels={'display_size': 'Display Size (inches)', 
                                    'count': 'Number of Laptops'},
-                           color_discrete_sequence=['skyblue'],
-                           marginal='box')
+                           color_discrete_sequence=['skyblue'])
         fig.update_layout(bargap=0.1)
         st.plotly_chart(fig, use_container_width=True)
 
@@ -306,7 +301,7 @@ with tab4:
     available_cols = [c for c in numeric_cols if c in filtered_df.columns]
     if len(available_cols) > 1:
         corr_matrix = filtered_df[available_cols].corr()
-        fig = px.imshow(corr_matrix, text_auto=True, aspect="auto",
+        fig = px.imshow(corr_matrix.round(2), text_auto=True, aspect="auto",
                         title="Correlation Matrix of Numerical Features",
                         color_continuous_scale='RdBu_r', zmin=-1, zmax=1)
         st.plotly_chart(fig, use_container_width=True)
