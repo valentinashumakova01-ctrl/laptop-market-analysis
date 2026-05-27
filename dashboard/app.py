@@ -133,22 +133,20 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 
 # Tab 1: Price Analysis
 with tab1:
-    col1, col2 = st.columns(2)
     
-    with col1:
-        st.subheader("Price Distribution by Brand")
-        fig = px.box(filtered_df, x='brand', y='price(in Rs.)', color='brand',
+    st.subheader("Price Distribution by Brand")
+    fig = px.box(filtered_df, x='brand', y='price(in Rs.)', color='brand',
                      title="Price Distribution by Brand")
-        fig.update_layout(showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+    fig.update_layout(showlegend=False)
+    st.plotly_chart(fig, use_container_width=True)
     
-    with col2:
-        st.subheader("Price vs Rating")
-        fig = px.scatter(filtered_df, x='price(in Rs.)', y='rating', 
+
+    st.subheader("Price vs Rating")
+    fig = px.scatter(filtered_df, x='price(in Rs.)', y='rating', 
                         color='brand', size='no_of_ratings',
                         hover_data=['ram_gb', 'storage_gb', 'processor_brand'],
                         title="Price vs Rating Relationship")
-        st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
     
     st.subheader("Price Distribution")
     fig = px.histogram(filtered_df, x='price(in Rs.)', nbins=50,
@@ -177,18 +175,37 @@ with tab2:
                      title="Average Rating by Processor Brand",
                      color='processor_brand')
         st.plotly_chart(fig, use_container_width=True)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Rating by RAM")
+        rating_by_ram = filtered_df.groupby('ram_gb')['rating'].mean().reset_index()
+        fig = px.line(rating_by_ram, x='ram_gb', y='rating',
+                      markers=True, title="Rating vs RAM Size")
+        st.plotly_chart(fig, use_container_width=True)
+        
+        st.subheader("Rating Distribution")
+        fig = px.histogram(filtered_df, x='rating', nbins=20,
+                           title="Rating Distribution",
+                           labels={'rating': 'Rating', 'count': 'Number of Laptops'})
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.subheader("Average Rating by Display Size")
+        display_rating = filtered_df.groupby('display_size')['rating'].agg(['mean', 'count']).reset_index()
+        display_rating = display_rating.sort_values('display_size')
     
-    st.subheader("Rating by RAM")
-    rating_by_ram = filtered_df.groupby('ram_gb')['rating'].mean().reset_index()
-    fig = px.line(rating_by_ram, x='ram_gb', y='rating',
-                  markers=True, title="Rating vs RAM Size")
-    st.plotly_chart(fig, use_container_width=True)
-    
-    st.subheader("Rating Distribution")
-    fig = px.histogram(filtered_df, x='rating', nbins=20,
-                       title="Rating Distribution",
-                       labels={'rating': 'Rating', 'count': 'Number of Laptops'})
-    st.plotly_chart(fig, use_container_width=True)
+        
+        fig = px.bar(display_rating, x='display_size', y='mean',
+                     text='count',
+                     title="Average Rating by Display Size",
+                     labels={'display_size': 'Display Size (inches)', 'mean': 'Average Rating'},
+                     color='mean',
+                     color_continuous_scale='RdYlGn')
+        fig.update_traces(textposition='outside')
+        fig.add_hline(y=4.5, line_dash="dash", line_color="red")
+        st.plotly_chart(fig, use_container_width=True)
 
 # Tab 3: Technical Specs
 with tab3:
@@ -229,13 +246,28 @@ with tab3:
         fig = px.pie(os_counts, values='Count', names='OS',
                      title="Operating System Distribution")
         st.plotly_chart(fig, use_container_width=True)
-    
-    st.subheader("Processor Series Distribution (Top 10)")
-    cpu_series_counts = filtered_df['processor_series'].value_counts().head(10).reset_index()
-    cpu_series_counts.columns = ['Processor Series', 'Count']
-    fig = px.bar(cpu_series_counts, x='Processor Series', y='Count',
-                 title="Top 10 Processor Series")
-    st.plotly_chart(fig, use_container_width=True)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Processor Series Distribution")
+        cpu_series_counts = filtered_df['processor_series'].value_counts().head(10).reset_index()
+        cpu_series_counts.columns = ['Processor Series', 'Count']
+        fig = px.bar(cpu_series_counts, x='Processor Series', y='Count',
+                     title="Top 10 Processor Series")
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.subheader("Distribution of Display Sizes on the Market")
+        fig = px.histogram(filtered_df, x='display_size', 
+                           nbins=20,
+                           title="Display Size Distribution",
+                           labels={'display_size': 'Display Size (inches)', 
+                                   'count': 'Number of Laptops'},
+                           color_discrete_sequence=['skyblue'],
+                           marginal='box')
+        fig.update_layout(bargap=0.1)
+        st.plotly_chart(fig, use_container_width=True)
 
 # Tab 4: Brand Comparison
 with tab4:
@@ -293,39 +325,15 @@ with tab5:
         - **Storage:** 512 GB SSD
         - **Processor:** Ryzen 5 / Intel i5
         - **OS:** Windows 11
-        - **Price Range:** ₹50,000 - ₹70,000
         """)
         
-        st.markdown("### 💎 Premium Choice")
+        st.markdown("### Premium Choice")
         st.success("""
         **Top Performers:**
         - **Apple MacBooks** with M-series processors
         - **16-32 GB RAM**
         - **512 GB+ SSD**
         - **macOS**
-        """)
-    
-    with col2:
-        st.markdown("### Gaming Laptops")
-        st.info("""
-        **Recommended Brands:**
-        - **MSI** - High performance
-        - **ASUS ROG** - Gaming focused
-        - **Acer Predator** - Good value
-        
-        **Key Features:**
-        - Dedicated GPU
-        - 16+ GB RAM
-        - High refresh rate display
-        """)
-        
-        st.markdown("### Budget Friendly")
-        st.success("""
-        **Best Options:**
-        - **AMD Ryzen 3/5** or **Intel i3/i5**
-        - **8 GB RAM** (upgradable to 16 GB)
-        - **256 GB SSD**
-        - Consider **Linux** or **DOS** for lower cost
         """)
 
 # Footer
