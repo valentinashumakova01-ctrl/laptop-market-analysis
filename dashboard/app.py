@@ -104,6 +104,10 @@ filtered_df = filtered_df[filtered_df['rating'] >= min_rating]
 if selected_os != 'All':
     filtered_df = filtered_df[filtered_df['os'] == selected_os]
 
+if len(filtered_df) == 0:
+    st.warning("No laptops match the selected filters. Please adjust your criteria.")
+    st.stop()
+
 # Display metrics
 st.markdown("## Key Metrics")
 col1, col2, col3, col4 = st.columns(4)
