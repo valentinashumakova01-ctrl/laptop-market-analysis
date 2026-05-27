@@ -6,8 +6,8 @@ def fix_outliers(df):
     df_fixed = df.copy()
     
     # Fix 1: Display size (35 inches -> 15.6)
-    if 'display(in inch)' in df_fixed.columns:
-        df_fixed.loc[df_fixed['display(in inch)'] == 35.0, 'display(in inch)'] = 15.6
+    if 'display_size' in df_fixed.columns:
+        df_fixed.loc[df_fixed['display_size'] == 35.0, 'display_size'] = 15.6
     
     # Fix 2: Storage anomalies (4GB and 5GB -> 512GB)
     if 'storage_gb' in df_fixed.columns:
