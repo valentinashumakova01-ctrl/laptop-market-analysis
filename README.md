@@ -18,6 +18,8 @@ The analysis includes:
 
 Dataset: Laptop Selection Dataset
 
+Dataset is downloaded automatically using kagglehub.
+
 Features:
 - laptop brand
 - processor
